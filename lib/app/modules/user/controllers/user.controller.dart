@@ -1,13 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../../data/models/user.model.dart';
 
 import '../../../data/providers/local/shared_preferences.provider.dart';
+import '../../../routes/app_pages.dart';
 import '../../../widgets/_base/bot_toast.widget.dart';
 
 class UserController extends GetxController {
   Future onLogout() async {
     await SharedPrefsProvider.logOut();
-    // await Get.offAllNamed(Routes.LOGIN);
+    await Get.offAllNamed(Routes.ONBOARDING);
     MyBotToast.text('Berhasil keluar dari Akun');
   }
 
@@ -23,17 +25,11 @@ class UserController extends GetxController {
   void fetchUser() {
     isLoading.toggle();
 
-    // repository.getMe().then((value) async {
-    //   if (value is User) {
-    //     user.value = value;
-
-    //     final userId = value.pengguna?.id?.toString();
-    //     await AnalyticsService.instance?.setUserId(id: userId);
-    //     OneSignalService.setUserId(userId);
-    //   }
-    // }).catchError((e) {
-    //   if (kDebugMode) print(e);
-    //   return;
-    // }).whenComplete(isLoading.toggle);
+    SharedPrefsProvider.getUser()
+        .then((value) => user.value = value)
+        .catchError((e) {
+      if (kDebugMode) print(e);
+      return null;
+    }).whenComplete(isLoading.toggle);
   }
 }
