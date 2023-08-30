@@ -1,0 +1,8 @@
+{
+  "jsonToDart.avoidDynamicTypes": true,
+  "jsonToDart.fastMode": true,
+  "jsonToDart.sortConstructorsFirst": true,
+  "jsonToDart.toString": "Default",
+  "jsonToDart.targetDirectory.path": "/lib/app/data/models",
+  "dart.flutterSdkPath": "/Users/ahmadfaaiz/fvm/versions/stable"
+}
