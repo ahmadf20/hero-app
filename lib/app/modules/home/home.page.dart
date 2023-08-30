@@ -157,6 +157,8 @@ class ListItem extends StatelessWidget {
   final String unit;
   final String time;
   final String icon;
+  final Widget? suffix;
+  final void Function()? onPressed;
 
   const ListItem({
     required this.label,
@@ -164,17 +166,34 @@ class ListItem extends StatelessWidget {
     required this.unit,
     required this.time,
     required this.icon,
+    this.suffix,
+    this.onPressed,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
+    return FilledButton.tonal(
+      style: ButtonStyle(
+        overlayColor: MaterialStateProperty.all(
+          Theme.of(context)
+              .colorScheme
+              .primary
+              .withOpacity(onPressed == null ? 0 : 0.1),
+        ),
+        padding: MaterialStateProperty.all(
+          const EdgeInsets.all(16),
+        ),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        backgroundColor: MaterialStateProperty.all(
+          Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        ),
       ),
+      onPressed: onPressed ?? () {},
       child: Column(
         children: [
           Row(
@@ -214,7 +233,7 @@ class ListItem extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              Text(time),
+              suffix ?? Text(time),
             ],
           ),
         ],

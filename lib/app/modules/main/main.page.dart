@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../widgets/_base/loading_indicator.widget.dart';
 import '../../widgets/bottom_navbar.widget.dart';
 import '../home/home.page.dart';
+import '../measure/measure.page.dart';
 import '../user/controllers/user.controller.dart';
 import 'controllers/main.controller.dart';
 
@@ -16,6 +17,8 @@ class MainPage extends GetView<MainController> {
     switch (controller.currentIndex) {
       case 0:
         return HomePage();
+      case 1:
+        return const MeasurePage();
 
       default:
         return HomePage();

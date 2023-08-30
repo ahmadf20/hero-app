@@ -3,8 +3,8 @@ import '../modules/main/bindings/main.binding.dart';
 import '../modules/main/main.page.dart';
 import '../modules/onboarding/bindings/onboarding.binding.dart';
 import '../modules/onboarding/onboarding.page.dart';
-import '../modules/profile/profile.binding.dart';
-import '../modules/profile/profile.page.dart';
+import '../modules/measure/mesure.binding.dart';
+import '../modules/measure/measure.page.dart';
 
 part 'app_routes.dart';
 

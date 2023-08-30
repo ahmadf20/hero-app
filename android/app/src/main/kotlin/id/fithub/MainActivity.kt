@@ -1,4 +1,4 @@
-package id.hero
+package id.fithub
 
 import io.flutter.embedding.android.FlutterActivity
 

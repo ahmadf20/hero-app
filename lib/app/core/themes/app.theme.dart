@@ -6,9 +6,9 @@ class AppTheme {
 
   static final ThemeData appThemeData = ThemeData(
     useMaterial3: true,
-    primaryColor: Colors.blue.shade500,
-    splashColor: Colors.blue.shade100,
-    highlightColor: Colors.blue.shade50,
+    // primaryColor: Colors.blue.shade500,
+    // splashColor: Colors.blue.shade100,
+    // highlightColor: Colors.blue.shade50,
     fontFamily: 'ProductSans',
     visualDensity: VisualDensity.adaptivePlatformDensity,
     canvasColor: Colors.white,
