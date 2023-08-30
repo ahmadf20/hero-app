@@ -64,12 +64,6 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 16),
               Column(
                 children: [
-                  // const Icon(
-                  //   Icons.emoji_emotions_rounded,
-                  //   size: 100,
-                  //   color: Colors.green,
-                  // ),
-
                   const Text(
                     '😄',
                     style: TextStyle(

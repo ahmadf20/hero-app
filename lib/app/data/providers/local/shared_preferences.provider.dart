@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/utils/logger.dart';
@@ -15,15 +17,7 @@ class SharedPrefsProvider {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     try {
-      if (user.name != null) await prefs.setString('name', user.name ?? '');
-      if (user.birthDate != null) {
-        await prefs.setString(
-          'birthdate',
-          user.birthDate?.toIso8601String() ?? '',
-        );
-      }
-      if (user.height != null) await prefs.setDouble('height', user.height!);
-      if (user.weight != null) await prefs.setDouble('weight', user.weight!);
+      await prefs.setString('user', json.encode(user));
     } on Exception catch (e) {
       logger.e('Failed to save user data: $e');
       return false;
@@ -36,11 +30,8 @@ class SharedPrefsProvider {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     try {
-      final name = prefs.getString('name');
-
-      return User(
-        name: name,
-      );
+      final user = json.decode(prefs.getString('user') ?? '');
+      return User.fromJson(user as Map<String, Object?>);
     } on Exception catch (e) {
       logger.e('Failed to get user data: $e');
       return null;

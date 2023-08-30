@@ -25,11 +25,13 @@ class UserController extends GetxController {
   void fetchUser() {
     isLoading.toggle();
 
-    SharedPrefsProvider.getUser()
-        .then((value) => user.value = value)
-        .catchError((e) {
+    SharedPrefsProvider.getUser().then((value) {
+      user.value = value;
+    }).catchError((e) {
       if (kDebugMode) print(e);
       return null;
     }).whenComplete(isLoading.toggle);
   }
+
+  bool get isLoggedIn => user.value?.name != null;
 }

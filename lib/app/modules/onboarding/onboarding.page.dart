@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../../core/utils/date_time.dart';
-import '../../routes/app_pages.dart';
 import '../../widgets/_base/screen_wrapper.widget.dart';
 import '../user/controllers/user.controller.dart';
 import 'controllers/onboarding.controller.dart';
@@ -22,22 +20,48 @@ class OnboardingPage extends GetView<OnboardingController> {
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Welcome',
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.primary,
+                  Row(
+                    children: [
+                      if (user.isLoggedIn) ...[
+                        IconButton.filledTonal(
+                          style: ButtonStyle(
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                          padding: EdgeInsets.zero,
+                          onPressed: Get.back,
+                          icon: Icon(
+                            Icons.arrow_back,
+                            size: 25,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
-                    textAlign: TextAlign.start,
+                        const SizedBox(width: 12),
+                      ],
+                      Text(
+                        user.isLoggedIn ? 'Profile' : 'Welcome',
+                        style:
+                            Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                        textAlign: TextAlign.start,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Please fill the form below to continue',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    textAlign: TextAlign.start,
-                  ),
+                  if (!user.isLoggedIn) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Please fill the form below to continue',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      textAlign: TextAlign.start,
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   Column(
                     children: [
@@ -74,12 +98,7 @@ class OnboardingPage extends GetView<OnboardingController> {
                                 );
 
                                 if (date != null) {
-                                  controller.date.value = date;
-                                  controller.birthdate.controller.text =
-                                      DateTimeUtils.format(
-                                    date,
-                                    format: 'dd MMMM yyyy',
-                                  );
+                                  controller.setBirthDate(date);
                                 }
                               },
                               decoration: InputDecoration(
@@ -88,6 +107,14 @@ class OnboardingPage extends GetView<OnboardingController> {
                                 fillColor:
                                     Theme.of(context).colorScheme.background,
                               ),
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Birthdate is required';
+                                }
+                                return null;
+                              },
                             ),
                           ),
                         ],
@@ -164,12 +191,26 @@ class OnboardingPage extends GetView<OnboardingController> {
             ),
             const SizedBox(height: 64),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: user.isLoggedIn
+                  ? MainAxisAlignment.spaceBetween
+                  : MainAxisAlignment.end,
               children: [
+                if (user.isLoggedIn)
+                  TextButton(
+                    onPressed: () {
+                      controller.reset();
+                      // user.onLogout();
+                    },
+                    child: const Text('Reset'),
+                  ),
                 FilledButton.icon(
                   onPressed: controller.submit,
-                  label: const Text('Next'),
-                  icon: const Icon(Icons.arrow_circle_right_outlined),
+                  label: Text(user.isLoggedIn ? 'Save' : 'Next'),
+                  icon: Icon(
+                    user.isLoggedIn
+                        ? Icons.save
+                        : Icons.arrow_circle_right_outlined,
+                  ),
                 ),
               ],
             ),
