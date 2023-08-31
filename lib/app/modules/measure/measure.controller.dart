@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:get/get.dart';
@@ -8,22 +9,28 @@ enum MeassureType { manual, sync, auto }
 
 enum MeassuringState { running, paused, stopped }
 
+class HealthData {
+  final double value;
+  final DateTime updatedAt;
+
+  HealthData({
+    required this.value,
+    required this.updatedAt,
+  });
+}
+
 class MeasureController extends GetxController {
   final meassureType = MeassureType.manual.obs;
 
-  // create a HealthFactory for use in the app, choose if HealthConnect should be used or not
   final HealthFactory health = HealthFactory(useHealthConnectIfAvailable: true);
 
   @override
   void onInit() {
     authorize();
-
     super.onInit();
   }
 
-  // define the types to get
   final types = [
-    HealthDataType.BLOOD_OXYGEN,
     HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
     HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
     HealthDataType.HEART_RATE,
@@ -33,55 +40,109 @@ class MeasureController extends GetxController {
     HealthDataAccess.READ,
     HealthDataAccess.READ,
     HealthDataAccess.READ,
-    HealthDataAccess.READ,
   ];
 
-  final bloodPressureDiastolic = Rxn<HealthDataPoint>();
-  final bloodPressureSystolic = Rxn<HealthDataPoint>();
-  final heartRate = Rxn<HealthDataPoint>();
-  final oxygenSaturation = Rxn<HealthDataPoint>();
+  final bloodPressureDiastolic = Rxn<HealthData>();
+  final bloodPressureSystolic = Rxn<HealthData>();
+  final heartRate = Rxn<HealthData>();
 
-  Future<void> readHealth() async {
-    final bool requested =
-        await health.requestAuthorization(types, permissions: permissions);
+  final cardiacOutput = Rxn<HealthData>();
 
-    final now = DateTime.now();
+  final startAt = Rxn<DateTime>();
+
+  late Timer? timer;
+
+  Future<void> readHealth({DateTime? startAt}) async {
+    final bool requested = await health.requestAuthorization(
+      types,
+      permissions: permissions,
+    );
 
     if (!requested) return;
+    if (startAt == null) return;
 
-    final List<HealthDataPoint> healthData =
-        await health.getHealthDataFromTypes(
-      DateTime(now.year, now.month, now.day),
+    final now = DateTime.now();
+    final healthData = await health.getHealthDataFromTypes(
+      startAt.subtract(const Duration(minutes: 1)),
       now,
       types,
     );
 
-    bloodPressureDiastolic.value = healthData.firstWhereOrNull(
+    print(healthData);
+
+    final dbp = healthData.firstWhereOrNull(
       (element) => element.type == HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
     );
-    bloodPressureSystolic.value = healthData.firstWhereOrNull(
+
+    if (dbp != null) {
+      bloodPressureDiastolic.value = HealthData(
+        value: toDouble(dbp.value),
+        updatedAt: dbp.dateFrom,
+      );
+    }
+
+    final sbp = healthData.firstWhereOrNull(
       (element) => element.type == HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
     );
-    heartRate.value = healthData.firstWhereOrNull(
+
+    if (sbp != null) {
+      bloodPressureSystolic.value = HealthData(
+        value: toDouble(sbp.value),
+        updatedAt: sbp.dateFrom,
+      );
+    }
+
+    final hr = healthData.firstWhereOrNull(
       (element) => element.type == HealthDataType.HEART_RATE,
     );
-    oxygenSaturation.value = healthData.firstWhereOrNull(
-      (element) => element.type == HealthDataType.BLOOD_OXYGEN,
-    );
+
+    if (hr != null) {
+      heartRate.value = HealthData(
+        value: toDouble(hr.value),
+        updatedAt: hr.dateFrom,
+      );
+    }
+
+    if (timer == null) return;
+    if (bloodPressureDiastolic.value != null &&
+        bloodPressureSystolic.value != null &&
+        heartRate.value != null) {
+      calculateCardiacOutput();
+      reset();
+
+      // TODO: save data to database
+    }
+  }
+
+  void calculateCardiacOutput() {
+    const k = 5.5; // TODO: calculate this
+
+    final sbp = double.parse(
+      bloodPressureSystolic.value?.value.toString() ?? '0',
+    ).toInt();
+    final dbp = double.parse(
+      bloodPressureDiastolic.value?.value.toString() ?? '0',
+    ).toInt();
+    final hr = double.parse(
+      heartRate.value?.value.toString() ?? '0',
+    ).toInt();
+
+    final co = hr * ((sbp - dbp) / (sbp + dbp)) / k;
+
+    cardiacOutput.value = HealthData(value: co, updatedAt: DateTime.now());
+  }
+
+  double toDouble(HealthValue? value) {
+    return double.parse(value?.toString() ?? '0');
   }
 
   Future authorize() async {
-    // If we are trying to read Step Count, Workout, Sleep or other data that requires
-    // the ACTIVITY_RECOGNITION permission, we need to request the permission first.
-    // This requires a special request authorization call.
-    //
-    // The location permission is requested for Workouts using the Distance information.
     await Permission.activityRecognition.request();
-    await Permission.location.request();
 
-    // Check if we have permission
-    bool? hasPermissions =
-        await health.hasPermissions(types, permissions: permissions);
+    bool? hasPermissions = await health.hasPermissions(
+      types,
+      permissions: permissions,
+    );
 
     // hasPermissions = false because the hasPermission cannot disclose if WRITE access exists.
     // Hence, we have to request with WRITE as well.
@@ -95,21 +156,43 @@ class MeasureController extends GetxController {
         log('Exception in authorize: $error');
       }
     }
-
-    await readHealth();
   }
 
   final meassuringState = MeassuringState.stopped.obs;
 
   void startMeassure() {
+    if (meassuringState.value == MeassuringState.stopped) {
+      startAt.value = DateTime.now();
+    }
+
     meassuringState.value = MeassuringState.running;
+
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      readHealth(startAt: startAt.value);
+    });
   }
 
   void stopMeassure() {
     meassuringState.value = MeassuringState.paused;
+    timer?.cancel();
+  }
+
+  void reset() {
+    meassuringState.value = MeassuringState.stopped;
+    startAt.value = null;
+    timer?.cancel();
   }
 
   void resetMeassure() {
-    meassuringState.value = MeassuringState.stopped;
+    reset();
+
+    bloodPressureDiastolic.value = null;
+    bloodPressureSystolic.value = null;
+    heartRate.value = null;
+    cardiacOutput.value = null;
+  }
+
+  bool get hasCompleted {
+    return cardiacOutput.value != null;
   }
 }

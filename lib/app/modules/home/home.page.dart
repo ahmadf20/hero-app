@@ -85,63 +85,54 @@ class HomePage extends StatelessWidget {
                     .titleMedium
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
-              if (controller.bloodPressureSystolic.value != null &&
-                  controller.bloodPressureDiastolic.value != null) ...[
-                const SizedBox(height: 16),
-                ListItem(
-                  label: 'Blood Pressure',
-                  value:
-                      '${double.parse(controller.bloodPressureSystolic.value?.value.toString() ?? '0').toInt()}/${double.parse(controller.bloodPressureDiastolic.value?.value.toString() ?? '0').toInt()}',
-                  unit: 'mmHg',
-                  time: DateTimeUtils.format(
-                    controller.bloodPressureSystolic.value?.dateFrom,
-                    format: 'HH.mm',
-                  ),
-                  icon: '🩸',
+              const SizedBox(height: 16),
+              ListItem(
+                label: 'Blood Pressure',
+                value:
+                    '${double.parse(controller.bloodPressureSystolic.value?.value.toString() ?? '0').toInt()}/${double.parse(controller.bloodPressureDiastolic.value?.value.toString() ?? '0').toInt()}',
+                unit: 'mmHg',
+                time: DateTimeUtils.format(
+                  controller.bloodPressureSystolic.value?.dateFrom,
+                  format: 'HH.mm',
                 ),
-              ],
-              if (controller.heartRate.value != null) ...[
-                const SizedBox(height: 16),
-                ListItem(
-                  label: 'Heart Rate',
-                  value:
-                      '${double.parse(controller.heartRate.value?.value.toString() ?? '0').toInt()}',
-                  unit: 'BPM',
-                  time: DateTimeUtils.format(
-                    controller.heartRate.value?.dateFrom,
-                    format: 'HH.mm',
-                  ),
-                  icon: '🩺',
+                icon: '🩸',
+              ),
+              const SizedBox(height: 16),
+              ListItem(
+                label: 'Heart Rate',
+                value:
+                    '${double.parse(controller.heartRate.value?.value.toString() ?? '0').toInt()}',
+                unit: 'BPM',
+                time: DateTimeUtils.format(
+                  controller.heartRate.value?.dateFrom,
+                  format: 'HH.mm',
                 ),
-              ],
-              if (controller.heartRate.value != null) ...[
-                const SizedBox(height: 16),
-                ListItem(
-                  label: 'Cardiac Output',
-                  value:
-                      '${double.parse(controller.heartRate.value?.value.toString() ?? '0').toInt()}',
-                  unit: 'L/min',
-                  time: DateTimeUtils.format(
-                    controller.heartRate.value?.dateFrom,
-                    format: 'HH.mm',
-                  ),
-                  icon: '🫀',
+                icon: '🩺',
+              ),
+              const SizedBox(height: 16),
+              ListItem(
+                label: 'Cardiac Output',
+                value:
+                    '${double.parse(controller.heartRate.value?.value.toString() ?? '0').toInt()}',
+                unit: 'L/min',
+                time: DateTimeUtils.format(
+                  controller.heartRate.value?.dateFrom,
+                  format: 'HH.mm',
                 ),
-              ],
-              if (controller.oxygenSaturation.value != null) ...[
-                const SizedBox(height: 16),
-                ListItem(
-                  label: 'Oxygen Saturation',
-                  value:
-                      '${(double.parse(controller.oxygenSaturation.value?.value.toString() ?? '0') * 100).toInt()}',
-                  unit: '%',
-                  time: DateTimeUtils.format(
-                    controller.oxygenSaturation.value?.dateFrom,
-                    format: 'HH.mm',
-                  ),
-                  icon: '💦',
+                icon: '🫀',
+              ),
+              const SizedBox(height: 16),
+              ListItem(
+                label: 'Oxygen Saturation',
+                value:
+                    '${(double.parse(controller.oxygenSaturation.value?.value.toString() ?? '0') * 100).toInt()}',
+                unit: '%',
+                time: DateTimeUtils.format(
+                  controller.oxygenSaturation.value?.dateFrom,
+                  format: 'HH.mm',
                 ),
-              ],
+                icon: '💦',
+              ),
               const SizedBox(height: 16),
             ],
           ),

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
 import '../../core/utils/date_time.dart';
 import '../../widgets/_base/screen_wrapper.widget.dart';
 import '../home/home.page.dart';
 import 'measure.controller.dart';
+import 'widgets/input.sheet.dart';
 
 class MeasurePage extends StatelessWidget {
   const MeasurePage({Key? key}) : super(key: key);
@@ -15,6 +14,11 @@ class MeasurePage extends StatelessWidget {
     return GetX<MeasureController>(
       init: MeasureController(),
       builder: (controller) {
+        final bps = controller.bloodPressureSystolic.value;
+        final bpd = controller.bloodPressureDiastolic.value;
+        final heartRate = controller.heartRate.value;
+        final co = controller.cardiacOutput.value;
+
         return ScreenWrapper(
           child: Stack(
             alignment: Alignment.center,
@@ -46,21 +50,14 @@ class MeasurePage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  if (controller.heartRate.value != null) ...[
-                    const SizedBox(height: 16),
-                    ListItem(
-                      label: 'Cardiac Output',
-                      value:
-                          '${double.parse(controller.heartRate.value?.value.toString() ?? '0').toInt()}',
-                      unit: 'L/min',
-                      time: DateTimeUtils.format(
-                        controller.heartRate.value?.dateFrom,
-                        format: 'HH.mm',
-                      ),
-                      icon: '🫀',
-                    ),
-                  ],
+                  const SizedBox(height: 24),
+                  ListItem(
+                    label: 'Cardiac Output',
+                    value: co?.value.toStringAsFixed(1) ?? '0',
+                    unit: 'L/min',
+                    time: DateTimeUtils.format(co?.updatedAt, format: 'HH.mm'),
+                    icon: '🫀',
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Input',
@@ -73,61 +70,46 @@ class MeasurePage extends StatelessWidget {
                     'Tap the card to edit',
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
-                  if (controller.bloodPressureSystolic.value != null &&
-                      controller.bloodPressureDiastolic.value != null) ...[
-                    const SizedBox(height: 16),
-                    ListItem(
-                      label: 'Blood Pressure',
-                      value:
-                          '${double.parse(controller.bloodPressureSystolic.value?.value.toString() ?? '0').toInt()}/${double.parse(controller.bloodPressureDiastolic.value?.value.toString() ?? '0').toInt()}',
-                      unit: 'mmHg',
-                      time: DateTimeUtils.format(
-                        controller.bloodPressureSystolic.value?.dateFrom,
-                        format: 'HH.mm',
-                      ),
-                      icon: '🩸',
-                      // suffix: IconButton.filled(
-                      //   onPressed: () {},
-                      //   icon: const Icon(
-                      //     Icons.edit_note_rounded,
-                      //     color: Colors.white,
-                      //   ),
-                      // ),
-                      onPressed: () {
-                        Get.bottomSheet(
-                          const InputDialog(),
-                          backgroundColor: Theme.of(context).canvasColor,
-                        );
-                      },
+                  const SizedBox(height: 16),
+                  ListItem(
+                    label: 'Blood Pressure',
+                    value:
+                        '${bps?.value.toStringAsFixed(0) ?? '0'}/${bpd?.value.toStringAsFixed(0) ?? '0'}',
+                    unit: 'mmHg',
+                    time: DateTimeUtils.format(bps?.updatedAt, format: 'HH.mm'),
+                    icon: '🩸',
+                    onPressed: () {
+                      Get.bottomSheet(
+                        InputSheet(
+                          meassureController: controller,
+                          intitialValue1: bps?.value.toStringAsFixed(0),
+                          intitialValue2: bpd?.value.toStringAsFixed(0),
+                        ),
+                        backgroundColor: Theme.of(context).canvasColor,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  ListItem(
+                    label: 'Heart Rate',
+                    value: heartRate?.value.toStringAsFixed(0) ?? '0',
+                    unit: 'BPM',
+                    time: DateTimeUtils.format(
+                      heartRate?.updatedAt,
+                      format: 'HH.mm',
                     ),
-                  ],
-                  if (controller.heartRate.value != null) ...[
-                    const SizedBox(height: 16),
-                    ListItem(
-                      label: 'Heart Rate',
-                      value:
-                          '${double.parse(controller.heartRate.value?.value.toString() ?? '0').toInt()}',
-                      unit: 'BPM',
-                      time: DateTimeUtils.format(
-                        controller.heartRate.value?.dateFrom,
-                        format: 'HH.mm',
-                      ),
-                      icon: '🩺',
-                      // suffix: IconButton.filled(
-                      //   onPressed: () {},
-                      //   icon: const Icon(
-                      //     Icons.sync_rounded,
-                      //     color: Colors.white,
-                      //   ),
-                      // ),
-                      onPressed: () {
-                        Get.bottomSheet(
-                          const InputDialog(),
-                          backgroundColor: Theme.of(context).canvasColor,
-                        );
-                      },
-                    ),
-                  ],
+                    icon: '🩺',
+                    onPressed: () {
+                      Get.bottomSheet(
+                        InputSheet(
+                          meassureController: controller,
+                          isHeartRate: true,
+                          intitialValue1: heartRate?.value.toStringAsFixed(0),
+                        ),
+                        backgroundColor: Theme.of(context).canvasColor,
+                      );
+                    },
+                  ),
                 ],
               ),
               Positioned(
@@ -139,7 +121,8 @@ class MeasurePage extends StatelessWidget {
                   child: Row(
                     children: [
                       if (controller.meassuringState.value ==
-                          MeassuringState.paused) ...[
+                              MeassuringState.paused ||
+                          controller.hasCompleted) ...[
                         Expanded(
                           child: FilledButton.tonalIcon(
                             onPressed: controller.resetMeassure,
@@ -154,32 +137,33 @@ class MeasurePage extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                       ],
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: controller.meassuringState.value ==
-                                  MeassuringState.running
-                              ? controller.stopMeassure
-                              : controller.startMeassure,
-                          label: Text(
-                            controller.meassuringState.value ==
+                      if (!controller.hasCompleted)
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: controller.meassuringState.value ==
                                     MeassuringState.running
-                                ? 'Stop'
-                                : controller.meassuringState.value ==
-                                        MeassuringState.paused
-                                    ? 'Continue'
-                                    : 'Start',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                                ? controller.stopMeassure
+                                : controller.startMeassure,
+                            label: Text(
+                              controller.meassuringState.value ==
+                                      MeassuringState.running
+                                  ? 'Stop'
+                                  : controller.meassuringState.value ==
+                                          MeassuringState.paused
+                                      ? 'Continue'
+                                      : 'Start',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            icon: Icon(
+                              controller.meassuringState.value ==
+                                      MeassuringState.running
+                                  ? Icons.stop_rounded
+                                  : Icons.play_arrow_rounded,
                             ),
                           ),
-                          icon: Icon(
-                            controller.meassuringState.value ==
-                                    MeassuringState.running
-                                ? Icons.stop_rounded
-                                : Icons.play_arrow_rounded,
-                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -188,105 +172,6 @@ class MeasurePage extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class InputDialog extends StatelessWidget {
-  const InputDialog({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Transform.translate(
-            offset: const Offset(-16, 0),
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: Get.back,
-                  icon: const Icon(Icons.close_rounded),
-                ),
-                Text(
-                  'Blood Pressure',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    label: const Text('Systolic'),
-                    filled: true,
-                    fillColor:
-                        Theme.of(context).colorScheme.primary.withOpacity(.1),
-                    suffixText: 'mmHg',
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'^(\d+)?\.?\d{0,2}'),
-                    ),
-                  ],
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  autofocus: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Weight is required';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    label: const Text('Diastolic'),
-                    filled: true,
-                    fillColor:
-                        Theme.of(context).colorScheme.primary.withOpacity(.1),
-                    suffixText: 'mmHg',
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'^(\d+)?\.?\d{0,2}'),
-                    ),
-                  ],
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Weight is required';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: Get.back,
-            child: const Text('Save'),
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
     );
   }
 }
