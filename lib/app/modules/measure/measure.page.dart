@@ -26,36 +26,59 @@ class MeasurePage extends StatelessWidget {
               ListView(
                 padding: const EdgeInsets.only(bottom: 56),
                 children: [
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
                   Text(
-                    'Meassure',
+                    'Measure',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.primary,
                         ),
                   ),
                   const SizedBox(height: 22),
-                  Column(
-                    children: [
-                      const Text(
-                        '😄',
-                        style: TextStyle(
-                          fontSize: 100,
-                          height: 1.2,
+                  if (controller.hasCompleted)
+                    Column(
+                      children: [
+                        const Text(
+                          '😄',
+                          style: TextStyle(
+                            fontSize: 100,
+                            height: 1.2,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'You are Healthy',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                    ],
-                  ),
+                        Text(
+                          'You are Healthy',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                      ],
+                    )
+                  else if (controller.meassuringState.value ==
+                      MeassuringState.running)
+                    const InformationHeader(
+                      title: 'Measuring',
+                      subtitle: 'Please wait',
+                      icon: '⌛',
+                    )
+                  else if (controller.meassuringState.value ==
+                      MeassuringState.paused)
+                    const InformationHeader(
+                      title: 'Paused',
+                      subtitle: 'Tap continue to resume',
+                      icon: '⌛',
+                    )
+                  else if (controller.meassuringState.value ==
+                      MeassuringState.stopped)
+                    const InformationHeader(
+                      title: 'Start Measuring',
+                      subtitle:
+                          'Wear your smartwatach and tap start to begin or input the data manually instead',
+                      icon: '▶',
+                    ),
                   const SizedBox(height: 24),
                   ListItem(
                     label: 'Cardiac Output',
                     value: co?.value.toStringAsFixed(1) ?? '0',
                     unit: 'L/min',
-                    time: DateTimeUtils.format(co?.updatedAt, format: 'HH.mm'),
+                    time: DateTimeUtils.format(co?.updatedAt, format: 'HH:mm'),
                     icon: '🫀',
                   ),
                   const SizedBox(height: 16),
@@ -66,17 +89,13 @@ class MeasurePage extends StatelessWidget {
                         .titleMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    'Tap the card to edit',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
                   const SizedBox(height: 16),
                   ListItem(
                     label: 'Blood Pressure',
                     value:
                         '${bps?.value.toStringAsFixed(0) ?? '0'}/${bpd?.value.toStringAsFixed(0) ?? '0'}',
                     unit: 'mmHg',
-                    time: DateTimeUtils.format(bps?.updatedAt, format: 'HH.mm'),
+                    time: DateTimeUtils.format(bps?.updatedAt, format: 'HH:mm'),
                     icon: '🩸',
                     onPressed: () {
                       Get.bottomSheet(
@@ -96,7 +115,7 @@ class MeasurePage extends StatelessWidget {
                     unit: 'BPM',
                     time: DateTimeUtils.format(
                       heartRate?.updatedAt,
-                      format: 'HH.mm',
+                      format: 'HH:mm',
                     ),
                     icon: '🩺',
                     onPressed: () {
@@ -118,52 +137,70 @@ class MeasurePage extends StatelessWidget {
                 right: 0,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
+                  child: Column(
                     children: [
-                      if (controller.meassuringState.value ==
-                              MeassuringState.paused ||
-                          controller.hasCompleted) ...[
-                        Expanded(
-                          child: FilledButton.tonalIcon(
-                            onPressed: controller.resetMeassure,
-                            label: const Text(
-                              'Reset',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          if (controller.meassuringState.value ==
+                                  MeassuringState.paused ||
+                              controller.hasCompleted) ...[
+                            Expanded(
+                              child: FilledButton.tonalIcon(
+                                onPressed: controller.resetMeassure,
+                                label: const Text(
+                                  'Reset',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                icon: const Icon(Icons.close_rounded),
                               ),
                             ),
-                            icon: const Icon(Icons.close_rounded),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                      if (!controller.hasCompleted)
-                        Expanded(
-                          child: FilledButton.icon(
-                            onPressed: controller.meassuringState.value ==
-                                    MeassuringState.running
-                                ? controller.stopMeassure
-                                : controller.startMeassure,
-                            label: Text(
-                              controller.meassuringState.value ==
-                                      MeassuringState.running
-                                  ? 'Stop'
-                                  : controller.meassuringState.value ==
-                                          MeassuringState.paused
-                                      ? 'Continue'
-                                      : 'Start',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                            const SizedBox(width: 8),
+                          ],
+                          if (!controller.hasCompleted)
+                            Expanded(
+                              child: FilledButton.icon(
+                                onPressed: controller.meassuringState.value ==
+                                        MeassuringState.running
+                                    ? controller.stopMeassure
+                                    : controller.startMeassure,
+                                label: Text(
+                                  controller.meassuringState.value ==
+                                          MeassuringState.running
+                                      ? 'Stop'
+                                      : controller.meassuringState.value ==
+                                              MeassuringState.paused
+                                          ? 'Continue'
+                                          : 'Start',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                icon: Icon(
+                                  controller.meassuringState.value ==
+                                          MeassuringState.running
+                                      ? Icons.stop_rounded
+                                      : Icons.play_arrow_rounded,
+                                ),
                               ),
                             ),
-                            icon: Icon(
-                              controller.meassuringState.value ==
-                                      MeassuringState.running
-                                  ? Icons.stop_rounded
-                                  : Icons.play_arrow_rounded,
+                          if (controller.hasCompleted) ...[
+                            Expanded(
+                              child: FilledButton.icon(
+                                onPressed: controller.save,
+                                label: const Text(
+                                  'Save',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                icon: const Icon(Icons.upload_rounded),
+                              ),
                             ),
-                          ),
-                        ),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -172,6 +209,44 @@ class MeasurePage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class InformationHeader extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String icon;
+
+  const InformationHeader({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          icon,
+          style: const TextStyle(
+            fontSize: 100,
+            height: 1.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          subtitle,
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

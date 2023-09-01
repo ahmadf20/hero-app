@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
         return ScreenWrapper(
           child: ListView(
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: 14),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -93,7 +93,7 @@ class HomePage extends StatelessWidget {
                 unit: 'mmHg',
                 time: DateTimeUtils.format(
                   controller.bloodPressureSystolic.value?.dateFrom,
-                  format: 'HH.mm',
+                  format: 'HH:mm',
                 ),
                 icon: '🩸',
               ),
@@ -105,7 +105,7 @@ class HomePage extends StatelessWidget {
                 unit: 'BPM',
                 time: DateTimeUtils.format(
                   controller.heartRate.value?.dateFrom,
-                  format: 'HH.mm',
+                  format: 'HH:mm',
                 ),
                 icon: '🩺',
               ),
@@ -117,7 +117,7 @@ class HomePage extends StatelessWidget {
                 unit: 'L/min',
                 time: DateTimeUtils.format(
                   controller.heartRate.value?.dateFrom,
-                  format: 'HH.mm',
+                  format: 'HH:mm',
                 ),
                 icon: '🫀',
               ),
@@ -129,7 +129,7 @@ class HomePage extends StatelessWidget {
                 unit: '%',
                 time: DateTimeUtils.format(
                   controller.oxygenSaturation.value?.dateFrom,
-                  format: 'HH.mm',
+                  format: 'HH:mm',
                 ),
                 icon: '💦',
               ),
@@ -146,8 +146,8 @@ class ListItem extends StatelessWidget {
   final String label;
   final String value;
   final String unit;
-  final String time;
   final String icon;
+  final String? time;
   final Widget? suffix;
   final void Function()? onPressed;
 
@@ -155,8 +155,8 @@ class ListItem extends StatelessWidget {
     required this.label,
     required this.value,
     required this.unit,
-    required this.time,
     required this.icon,
+    this.time,
     this.suffix,
     this.onPressed,
     super.key,
@@ -224,7 +224,7 @@ class ListItem extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              suffix ?? Text(time),
+              suffix ?? (time != null ? Text(time!) : Container()),
             ],
           ),
         ],
