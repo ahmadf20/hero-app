@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:health/health.dart';
@@ -48,10 +49,19 @@ class MeasureController extends GetxController {
   late Timer? timer;
 
   Future<void> readHealth({DateTime? startAt}) async {
-    final bool? requested = await health.hasPermissions(
-      types,
-      permissions: permissions,
-    );
+    final bool? requested;
+
+    if (Platform.isAndroid) {
+      requested = await health.hasPermissions(
+        types,
+        permissions: permissions,
+      );
+    } else {
+      requested = await health.requestAuthorization(
+        types,
+        permissions: permissions,
+      );
+    }
 
     if (requested != true) return;
     if (startAt == null) return;
