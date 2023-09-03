@@ -14,78 +14,96 @@ class MeasurePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetX<MeasureController>(
-      init: MeasureController(),
-      builder: (controller) {
-        final bps = controller.bloodPressureSystolic.value;
-        final bpd = controller.bloodPressureDiastolic.value;
-        final heartRate = controller.heartRate.value;
-        final co = controller.cardiacOutput.value;
+    return ValueListenableBuilder(
+      valueListenable: Hive.box<HealthRecord>('records').listenable(),
+      builder: (context, box, child) {
+        final isEmpty = box.isEmpty;
 
-        return ValueListenableBuilder(
-          valueListenable: Hive.box<HealthRecord>('records').listenable(),
-          builder: (context, box, child) {
-            final isEmpty = box.isEmpty;
-
-            if (isEmpty) {
-              return ScreenWrapper(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      'Measure',
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                    ),
-                    const SizedBox(height: 22),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          children: [
-                            const Spacer(),
-                            Icon(
-                              Icons.install_desktop_rounded,
-                              size: 100,
-                              color: Colors.grey.shade500,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Add first record',
-                              style: Theme.of(context).textTheme.headlineSmall,
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'First record needs to be added manually to calibrate the app',
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 24),
-                            FilledButton.tonalIcon(
-                              onPressed: () {
-                                Get.bottomSheet(
-                                  const InputRecordSheet(isFirstRecord: true),
-                                  backgroundColor:
-                                      Theme.of(context).canvasColor,
-                                  isScrollControlled: true,
-                                );
-                              },
-                              icon: const Icon(Icons.add),
-                              label: const Text('Add'),
-                            ),
-                            const SizedBox(height: 36),
-                            const Spacer(),
-                          ],
-                        ),
+        if (isEmpty) {
+          return ScreenWrapper(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20),
+                Text(
+                  'Measure',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
-                    ),
-                  ],
                 ),
-              );
+                const SizedBox(height: 22),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        const Spacer(),
+                        Icon(
+                          Icons.install_desktop_rounded,
+                          size: 100,
+                          color: Colors.grey.shade500,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Add first record',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'First record needs to be added manually to calibrate the app',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        FilledButton.tonalIcon(
+                          onPressed: () {
+                            Get.bottomSheet(
+                              const InputRecordSheet(isFirstRecord: true),
+                              backgroundColor: Theme.of(context).canvasColor,
+                              isScrollControlled: true,
+                            );
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add'),
+                        ),
+                        const SizedBox(height: 36),
+                        const Spacer(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return GetX<MeasureController>(
+          init: MeasureController(),
+          builder: (controller) {
+            final bps = controller.bloodPressureSystolic.value;
+            final bpd = controller.bloodPressureDiastolic.value;
+            final heartRate = controller.heartRate.value;
+            final co = controller.cardiacOutput.value;
+
+            final Map<String, dynamic> todayStatus;
+
+            if ((co?.value ?? 0) > 6 || (co?.value ?? 0) < 5) {
+              todayStatus = {
+                'title': 'You are Unhealthy',
+                'icon': '😣',
+                'subtitle':
+                    'The normal cardiac output ranges from 5 to 6 liters per minute in a person at rest. Please consult with your doctor',
+                'color': Colors.red.shade700,
+              };
+            } else {
+              todayStatus = {
+                'title': 'You are Healthy',
+                'icon': '😄',
+                'subtitle':
+                    'The normal cardiac output ranges from 5 to 6 liters per minute in a person at rest',
+                'color': Colors.green,
+              };
             }
 
             return ScreenWrapper(
@@ -110,16 +128,31 @@ class MeasurePage extends StatelessWidget {
                       if (controller.hasCompleted)
                         Column(
                           children: [
-                            const Text(
-                              '😄',
-                              style: TextStyle(
+                            Text(
+                              todayStatus['icon']?.toString() ?? '',
+                              style: const TextStyle(
                                 fontSize: 100,
                                 height: 1.2,
                               ),
                             ),
                             Text(
-                              'You are Healthy',
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              todayStatus['title']?.toString() ?? '',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    color: todayStatus['color'] as Color?,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24),
+                              child: Text(
+                                todayStatus['subtitle']?.toString() ?? '',
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ],
                         )
@@ -193,8 +226,10 @@ class MeasurePage extends StatelessWidget {
                         value:
                             '${bps?.value.toStringAsFixed(0) ?? '0'}/${bpd?.value.toStringAsFixed(0) ?? '0'}',
                         unit: 'mmHg',
-                        time: DateTimeUtils.format(bps?.updatedAt,
-                            format: 'HH:mm'),
+                        time: DateTimeUtils.format(
+                          bps?.updatedAt,
+                          format: 'HH:mm',
+                        ),
                         icon: '🩸',
                         onPressed: () {
                           Get.bottomSheet(
@@ -291,12 +326,14 @@ class MeasurePage extends StatelessWidget {
                                   child: FilledButton.icon(
                                     onPressed: controller.save,
                                     label: const Text(
-                                      'Save',
+                                      'Done',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    icon: const Icon(Icons.upload_rounded),
+                                    icon: const Icon(
+                                      Icons.download_done_rounded,
+                                    ),
                                   ),
                                 ),
                               ],

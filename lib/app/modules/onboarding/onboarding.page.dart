@@ -25,7 +25,7 @@ class OnboardingPage extends GetView<OnboardingController> {
                   Row(
                     children: [
                       if (user.isLoggedIn) ...[
-                        IconButton.filledTonal(
+                        IconButton(
                           style: ButtonStyle(
                             shape: MaterialStateProperty.all(
                               RoundedRectangleBorder(
@@ -36,12 +36,12 @@ class OnboardingPage extends GetView<OnboardingController> {
                           padding: EdgeInsets.zero,
                           onPressed: Get.back,
                           icon: Icon(
-                            Icons.arrow_back,
-                            size: 25,
+                            Icons.arrow_circle_left_outlined,
+                            size: 32,
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 4),
                       ],
                       Text(
                         user.isLoggedIn ? 'Profile' : 'Welcome',

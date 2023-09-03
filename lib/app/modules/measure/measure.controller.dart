@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:health/health.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../../data/models/record.model.dart';
 
 enum MeassureType { manual, sync, auto }
 
@@ -198,8 +200,43 @@ class MeasureController extends GetxController {
   }
 
   void save() {
-    // TODO: save data to sqlite database
+    final systolicPressure = bloodPressureSystolic.value?.value ?? 0;
+    final diastolicPressure = bloodPressureDiastolic.value?.value ?? 0;
+    final heartRate = this.heartRate.value?.value ?? 0;
 
-    GetStorage box = GetStorage();
+    final coEst = (systolicPressure - diastolicPressure) /
+        (systolicPressure + diastolicPressure) *
+        heartRate;
+
+    final recordBox = Hive.box<HealthRecord>('records');
+
+    final records = recordBox.values.toList();
+
+    double k = 0;
+
+    for (final record in records) {
+      final coEst = (record.systolicPressure - record.diastolicPressure) /
+          (record.systolicPressure + record.diastolicPressure) *
+          record.heartRate;
+
+      k += record.cardiacOutput / coEst;
+    }
+
+    k = k / records.length;
+
+    final cardiacOutput = coEst * k;
+
+    final data = HealthRecord(
+      systolicPressure: systolicPressure,
+      diastolicPressure: diastolicPressure,
+      heartRate: heartRate,
+      cardiacOutput: double.parse(cardiacOutput.toStringAsFixed(2)),
+      k: k,
+      updatedAt: DateTime.now(),
+    );
+
+    recordBox.add(data);
+
+    resetMeassure();
   }
 }
