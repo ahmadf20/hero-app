@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:health/health.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../data/models/record.model.dart';
 
@@ -26,12 +24,6 @@ class MeasureController extends GetxController {
   final meassureType = MeassureType.manual.obs;
 
   final HealthFactory health = HealthFactory(useHealthConnectIfAvailable: true);
-
-  @override
-  void onInit() {
-    authorize();
-    super.onInit();
-  }
 
   final types = [
     HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
@@ -56,12 +48,12 @@ class MeasureController extends GetxController {
   late Timer? timer;
 
   Future<void> readHealth({DateTime? startAt}) async {
-    final bool requested = await health.requestAuthorization(
+    final bool? requested = await health.hasPermissions(
       types,
       permissions: permissions,
     );
 
-    if (!requested) return;
+    if (requested != true) return;
     if (startAt == null) return;
 
     final now = DateTime.now();
@@ -114,48 +106,16 @@ class MeasureController extends GetxController {
   }
 
   void calculateCardiacOutput() {
-    const k = 0.3; // TODO: calculate this
+    final data = getHealtRecord();
 
-    final sbp = double.parse(
-      bloodPressureSystolic.value?.value.toString() ?? '0',
-    ).toInt();
-    final dbp = double.parse(
-      bloodPressureDiastolic.value?.value.toString() ?? '0',
-    ).toInt();
-    final hr = double.parse(
-      heartRate.value?.value.toString() ?? '0',
-    ).toInt();
-
-    final coEst = hr * ((sbp - dbp) / (sbp + dbp));
-    final co = coEst * k;
-
-    cardiacOutput.value = HealthData(value: co, updatedAt: DateTime.now());
+    cardiacOutput.value = HealthData(
+      value: data.cardiacOutput,
+      updatedAt: data.updatedAt,
+    );
   }
 
   double toDouble(HealthValue? value) {
     return double.parse(value?.toString() ?? '0');
-  }
-
-  Future authorize() async {
-    await Permission.activityRecognition.request();
-
-    bool? hasPermissions = await health.hasPermissions(
-      types,
-      permissions: permissions,
-    );
-
-    // hasPermissions = false because the hasPermission cannot disclose if WRITE access exists.
-    // Hence, we have to request with WRITE as well.
-    hasPermissions = false;
-
-    if (!hasPermissions) {
-      // requesting access to the data types before reading them
-      try {
-        await health.requestAuthorization(types, permissions: permissions);
-      } on Exception catch (error) {
-        log('Exception in authorize: $error');
-      }
-    }
   }
 
   final meassuringState = MeassuringState.stopped.obs;
@@ -200,6 +160,13 @@ class MeasureController extends GetxController {
   }
 
   void save() {
+    final recordBox = Hive.box<HealthRecord>('records');
+    final data = getHealtRecord();
+    recordBox.add(data);
+    resetMeassure();
+  }
+
+  HealthRecord getHealtRecord() {
     final systolicPressure = bloodPressureSystolic.value?.value ?? 0;
     final diastolicPressure = bloodPressureDiastolic.value?.value ?? 0;
     final heartRate = this.heartRate.value?.value ?? 0;
@@ -226,7 +193,7 @@ class MeasureController extends GetxController {
 
     final cardiacOutput = coEst * k;
 
-    final data = HealthRecord(
+    return HealthRecord(
       systolicPressure: systolicPressure,
       diastolicPressure: diastolicPressure,
       heartRate: heartRate,
@@ -234,9 +201,5 @@ class MeasureController extends GetxController {
       k: k,
       updatedAt: DateTime.now(),
     );
-
-    recordBox.add(data);
-
-    resetMeassure();
   }
 }

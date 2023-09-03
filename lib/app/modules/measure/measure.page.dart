@@ -24,7 +24,7 @@ class MeasurePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 Text(
                   'Measure',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -32,7 +32,7 @@ class MeasurePage extends StatelessWidget {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                 ),
-                const SizedBox(height: 22),
+                const SizedBox(height: 24),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
@@ -113,7 +113,7 @@ class MeasurePage extends StatelessWidget {
                   ListView(
                     padding: const EdgeInsets.only(bottom: 86),
                     children: [
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
                       Text(
                         'Measure',
                         style: Theme.of(context)
@@ -176,7 +176,7 @@ class MeasurePage extends StatelessWidget {
                           title: 'Start Measuring',
                           subtitle:
                               'Wear your smartwatach and tap start to begin or manually input the data instead',
-                          icon: '▶',
+                          icon: '🫀',
                         ),
                       const SizedBox(height: 24),
                       if (!controller.hasCompleted)
@@ -332,7 +332,7 @@ class MeasurePage extends StatelessWidget {
                                       ),
                                     ),
                                     icon: const Icon(
-                                      Icons.download_done_rounded,
+                                      Icons.done,
                                     ),
                                   ),
                                 ),

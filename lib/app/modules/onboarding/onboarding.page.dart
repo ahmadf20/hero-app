@@ -195,21 +195,23 @@ class OnboardingPage extends GetView<OnboardingController> {
                   ? MainAxisAlignment.spaceBetween
                   : MainAxisAlignment.end,
               children: [
-                if (user.isLoggedIn)
-                  TextButton(
-                    onPressed: () {
-                      controller.reset();
-                      // user.onLogout();
-                    },
-                    child: const Text('Reset'),
-                  ),
-                FilledButton.icon(
-                  onPressed: controller.submit,
-                  label: Text(user.isLoggedIn ? 'Save' : 'Next'),
-                  icon: Icon(
-                    user.isLoggedIn
-                        ? Icons.save
-                        : Icons.arrow_circle_right_outlined,
+                // if (user.isLoggedIn)
+                //   TextButton(
+                //     onPressed: () {
+                //       controller.reset();
+                //       // user.onLogout();
+                //     },
+                //     child: const Text('Reset'),
+                //   ),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: controller.submit,
+                    label: Text(user.isLoggedIn ? 'Save' : 'Next'),
+                    icon: Icon(
+                      user.isLoggedIn
+                          ? Icons.save
+                          : Icons.arrow_circle_right_outlined,
+                    ),
                   ),
                 ),
               ],

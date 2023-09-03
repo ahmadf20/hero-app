@@ -19,10 +19,10 @@ class HomePage extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: Hive.box<HealthRecord>('records').listenable(),
       builder: (context, box, child) {
-        final lastRecord = box.values.last;
+        final lastRecord = box.values.isNotEmpty ? box.values.last : null;
 
         final bool hasRecord = box.values.isNotEmpty &&
-            DateTimeUtils.isDateToday(lastRecord.updatedAt);
+            DateTimeUtils.isDateToday(lastRecord!.updatedAt);
 
         final Map<String, dynamic> todayStatus;
 
@@ -59,6 +59,8 @@ class HomePage extends StatelessWidget {
             return ScreenWrapper(
               child: ListView(
                 children: [
+                  const SizedBox(height: 18),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

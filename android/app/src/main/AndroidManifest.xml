@@ -16,7 +16,7 @@
 
 
     <application
-        android:label="hero"
+        android:label="Hero"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

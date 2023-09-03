@@ -72,7 +72,7 @@ class InputSheet extends StatelessWidget {
                           suffixText: c.isHeartRate! ? 'BPM' : 'mmHg',
                         ),
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
