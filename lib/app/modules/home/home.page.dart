@@ -145,7 +145,7 @@ class HomePage extends StatelessWidget {
 class ListItem extends StatelessWidget {
   final String label;
   final String value;
-  final String unit;
+  final String? unit;
   final String icon;
   final String? time;
   final Widget? suffix;
@@ -154,8 +154,8 @@ class ListItem extends StatelessWidget {
   const ListItem({
     required this.label,
     required this.value,
-    required this.unit,
     required this.icon,
+    this.unit,
     this.time,
     this.suffix,
     this.onPressed,
@@ -218,7 +218,7 @@ class ListItem extends StatelessWidget {
                             ),
                       ),
                       const SizedBox(width: 2),
-                      Text(unit),
+                      if (unit != null) Text(unit!),
                     ],
                   ),
                 ],

@@ -34,16 +34,17 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  wear: ^1.1.0
-  wearable_rotary: ^2.0.2
   health: ^8.0.0
   permission_handler: ^10.4.3
   get: ^4.6.5
   shared_preferences: ^2.2.0
-  sqlite3: ^2.1.0
   logger: ^2.0.1
   bot_toast: ^4.0.4
   intl: ^0.18.1
+  get_storage: ^2.1.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.1
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +60,8 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_native_splash: ^2.3.2
   flutter_launcher_icons: ^0.13.1
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.6
 
 # To set up config file, run: `flutter pub run flutter_launcher_icons:main -f pubspec.yaml`
 # To update the icon run: `flutter pub run flutter_launcher_icons:main`

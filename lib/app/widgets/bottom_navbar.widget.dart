@@ -34,12 +34,8 @@ class BottomNavbar extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment_rounded),
-            label: 'History',
+            label: 'Records',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.account_circle),
-          //   label: 'User',
-          // ),
         ],
       ),
     );

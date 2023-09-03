@@ -29,79 +29,55 @@ class InputSheet extends StatelessWidget {
         meassureController: meassureController,
       ),
       builder: (c) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Transform.translate(
-                offset: const Offset(-16, 0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: Get.back,
-                      icon: const Icon(Icons.close_rounded),
-                    ),
-                    Text(
-                      c.isHeartRate! ? 'Heart Rate' : 'Blood Pressure',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: c.input1.controller,
-                      decoration: InputDecoration(
-                        label: Text(c.isHeartRate! ? 'Heart Rate' : 'Systolic'),
-                        filled: true,
-                        fillColor: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(.1),
-                        suffixText: c.isHeartRate! ? 'BPM' : 'mmHg',
+        return SafeArea(
+          top: false,
+          child: Container(
+            padding: const EdgeInsets.all(24).copyWith(bottom: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Transform.translate(
+                  offset: const Offset(-16, 0),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: Get.back,
+                        icon: const Icon(Icons.close_rounded),
                       ),
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
+                      Text(
+                        c.isHeartRate! ? 'Heart Rate' : 'Blood Pressure',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
-                      autofocus: true,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'This field is required';
-                        }
-                        return null;
-                      },
-                    ),
+                    ],
                   ),
-                  if (!c.isHeartRate!) ...[
-                    const SizedBox(width: 16),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Expanded(
                       child: TextFormField(
-                        controller: c.input2.controller,
+                        controller: c.input1.controller,
                         decoration: InputDecoration(
-                          label: const Text('Diastolic'),
+                          label:
+                              Text(c.isHeartRate! ? 'Heart Rate' : 'Systolic'),
                           filled: true,
                           fillColor: Theme.of(context)
                               .colorScheme
                               .primary
                               .withOpacity(.1),
-                          suffixText: 'mmHg',
+                          suffixText: c.isHeartRate! ? 'BPM' : 'mmHg',
                         ),
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
+                          FilteringTextInputFormatter.digitsOnly
                         ],
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
+                        autofocus: true,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -111,16 +87,45 @@ class InputSheet extends StatelessWidget {
                         },
                       ),
                     ),
+                    if (!c.isHeartRate!) ...[
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextFormField(
+                          controller: c.input2.controller,
+                          decoration: InputDecoration(
+                            label: const Text('Diastolic'),
+                            filled: true,
+                            fillColor: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(.1),
+                            suffixText: 'mmHg',
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'This field is required';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
                   ],
-                ],
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: c.getIsFormValid ? c.save : null,
-                child: const Text('Save'),
-              ),
-              const SizedBox(height: 16),
-            ],
+                ),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: c.getIsFormValid ? c.save : null,
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
           ),
         );
       },

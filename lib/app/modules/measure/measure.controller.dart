@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -68,8 +69,6 @@ class MeasureController extends GetxController {
       types,
     );
 
-    print(healthData);
-
     final dbp = healthData.firstWhereOrNull(
       (element) => element.type == HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
     );
@@ -109,13 +108,11 @@ class MeasureController extends GetxController {
         heartRate.value != null) {
       calculateCardiacOutput();
       reset();
-
-      // TODO: save data to database
     }
   }
 
   void calculateCardiacOutput() {
-    const k = 5.5; // TODO: calculate this
+    const k = 0.3; // TODO: calculate this
 
     final sbp = double.parse(
       bloodPressureSystolic.value?.value.toString() ?? '0',
@@ -127,7 +124,8 @@ class MeasureController extends GetxController {
       heartRate.value?.value.toString() ?? '0',
     ).toInt();
 
-    final co = hr * ((sbp - dbp) / (sbp + dbp)) / k;
+    final coEst = hr * ((sbp - dbp) / (sbp + dbp));
+    final co = coEst * k;
 
     cardiacOutput.value = HealthData(value: co, updatedAt: DateTime.now());
   }
@@ -193,6 +191,15 @@ class MeasureController extends GetxController {
   }
 
   bool get hasCompleted {
-    return cardiacOutput.value != null;
+    return cardiacOutput.value != null &&
+        bloodPressureDiastolic.value != null &&
+        bloodPressureSystolic.value != null &&
+        heartRate.value != null;
+  }
+
+  void save() {
+    // TODO: save data to sqlite database
+
+    GetStorage box = GetStorage();
   }
 }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../widgets/_base/loading_indicator.widget.dart';
 import '../../widgets/bottom_navbar.widget.dart';
+import '../history/history.page.dart';
 import '../home/home.page.dart';
 import '../measure/measure.page.dart';
 import '../user/controllers/user.controller.dart';
@@ -12,18 +13,6 @@ class MainPage extends GetView<MainController> {
   MainPage({Key? key}) : super(key: key);
 
   final user = Get.find<UserController>();
-
-  Widget renderPage() {
-    switch (controller.currentIndex) {
-      case 0:
-        return HomePage();
-      case 1:
-        return const MeasurePage();
-
-      default:
-        return HomePage();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +25,14 @@ class MainPage extends GetView<MainController> {
         }
 
         return Scaffold(
-          body: renderPage(),
+          body: IndexedStack(
+            index: controller.currentIndex,
+            children: [
+              HomePage(),
+              const MeasurePage(),
+              HistoryPage(),
+            ],
+          ),
           bottomNavigationBar: BottomNavbar(controller),
         );
       },
