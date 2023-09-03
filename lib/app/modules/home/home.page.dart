@@ -59,7 +59,6 @@ class HomePage extends StatelessWidget {
             return ScreenWrapper(
               child: ListView(
                 children: [
-                  const SizedBox(height: 14),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
