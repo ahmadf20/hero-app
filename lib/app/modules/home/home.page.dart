@@ -34,13 +34,13 @@ class HomePage extends StatelessWidget {
                 'Go to measure page to check if you are in good condition today',
             'color': Colors.grey.shade800,
           };
-        } else if (lastRecord.cardiacOutput > 6 ||
-            lastRecord.cardiacOutput < 5) {
+        } else if (lastRecord.cardiacOutput > 4 ||
+            lastRecord.cardiacOutput < 8) {
           todayStatus = {
             'title': 'You are Unhealthy',
             'icon': '😣',
             'subtitle':
-                'The normal cardiac output ranges from 5 to 6 liters per minute in a person at rest. Please consult with your doctor',
+                'The normal cardiac output ranges from 4 to 8 liters per minute in a person at rest. Please consult with your doctor',
             'color': Colors.red.shade700,
           };
         } else {
@@ -48,7 +48,7 @@ class HomePage extends StatelessWidget {
             'title': 'You are Healthy',
             'icon': '😄',
             'subtitle':
-                'The normal cardiac output ranges from 5 to 6 liters per minute in a person at rest',
+                'The normal cardiac output ranges from 4 to 8 liters per minute in a person at rest',
             'color': Colors.green,
           };
         }

@@ -88,12 +88,12 @@ class MeasurePage extends StatelessWidget {
 
             final Map<String, dynamic> todayStatus;
 
-            if ((co?.value ?? 0) > 6 || (co?.value ?? 0) < 5) {
+            if ((co?.value ?? 0) > 4 || (co?.value ?? 0) < 8) {
               todayStatus = {
                 'title': 'You are Unhealthy',
                 'icon': '😣',
                 'subtitle':
-                    'The normal cardiac output ranges from 5 to 6 liters per minute in a person at rest. Please consult with your doctor',
+                    'The normal cardiac output ranges from 4 to 8 liters per minute in a person at rest. Please consult with your doctor',
                 'color': Colors.red.shade700,
               };
             } else {
@@ -101,7 +101,7 @@ class MeasurePage extends StatelessWidget {
                 'title': 'You are Healthy',
                 'icon': '😄',
                 'subtitle':
-                    'The normal cardiac output ranges from 5 to 6 liters per minute in a person at rest',
+                    'The normal cardiac output ranges from 4 to 8 liters per minute in a person at rest',
                 'color': Colors.green,
               };
             }
