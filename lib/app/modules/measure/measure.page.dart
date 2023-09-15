@@ -88,7 +88,7 @@ class MeasurePage extends StatelessWidget {
 
             final Map<String, dynamic> todayStatus;
 
-            if ((co?.value ?? 0) > 4 || (co?.value ?? 0) < 8) {
+            if ((co?.value ?? 0) > 8 || (co?.value ?? 0) < 4) {
               todayStatus = {
                 'title': 'You are Unhealthy',
                 'icon': '😣',

@@ -34,8 +34,8 @@ class HomePage extends StatelessWidget {
                 'Go to measure page to check if you are in good condition today',
             'color': Colors.grey.shade800,
           };
-        } else if (lastRecord.cardiacOutput > 4 ||
-            lastRecord.cardiacOutput < 8) {
+        } else if (lastRecord.cardiacOutput > 8 ||
+            lastRecord.cardiacOutput < 4) {
           todayStatus = {
             'title': 'You are Unhealthy',
             'icon': '😣',
